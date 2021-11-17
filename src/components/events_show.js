@@ -3,13 +3,20 @@ import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import { Link } from "react-router-dom";
 
-import { postEvent } from "../actions";
+import { getEvent, deleteEvent, putEvent } from "../actions";
 
-class EventsNew extends Component {
+class EventsShow extends Component {
   constructor(props) {
     super(props);
     this.onSubmit = this.onSubmit.bind(this);
+    this.onDeleteClick = this.onDeleteClick.bind(this);
   }
+
+  componentDidMount() {
+    const { id } = this.props.match.params;
+    if (id) this.props.getEvent(id);
+  }
+
   renderField(field) {
     const {
       input,
@@ -26,12 +33,14 @@ class EventsNew extends Component {
     );
   }
 
+  async onDeleteClick() {
+    const { id } = this.props.match.params;
+    await this.props.deleteEvent(id);
+    this.props.history.push("/");
+  }
+
   async onSubmit(values) {
-    await this.props.postEvent(values);
-    //console.log(this.props)
-    //console.log(this.props.history)
-    console.log(this.context);
-    console.log(this.context.history);
+    await this.props.putEvent(values);
     this.props.history.push("/");
   }
 
@@ -64,6 +73,9 @@ class EventsNew extends Component {
                 disabled={pristine || submitting || invalid}
               />
               <Link to="/">Cancel</Link>
+              <Link to="/" onClick={this.onDeleteClick}>
+                Delete
+              </Link>
             </div>
           </div>
         </form>
@@ -71,7 +83,11 @@ class EventsNew extends Component {
     );
   }
 }
-const mapDispatchToProps = { postEvent };
+const mapStateToProps = (state, ownProps) => {
+  const event = state.events[ownProps.match.params.id];
+  return { initialValues: event, state };
+};
+const mapDispatchToProps = { getEvent, deleteEvent, putEvent };
 const validate = (values) => {
   const errors = {};
   if (!values.title) errors.title = "Enter a title, please.";
@@ -81,6 +97,10 @@ const validate = (values) => {
 };
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
-)(reduxForm({ validate, form: "eventNewForm" })(EventsNew));
+)(
+  reduxForm({ validate, form: "eventShowForm", enableReinitialize: true })(
+    EventsShow
+  )
+);
