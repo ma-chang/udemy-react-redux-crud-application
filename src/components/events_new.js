@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import { Link } from "react-router-dom";
+import TextField from "material-ui/TextField";
+import RaisedButton from "material-ui/RaisedButton";
 
 import { postEvent } from "../actions";
 
@@ -20,8 +22,15 @@ class EventsNew extends Component {
 
     return (
       <div>
-        <input {...input} placeholder={label} type={type} />
-        {touched && error && <span>{error}</span>}
+        <TextField
+          hintText={label}
+          floatingLabelText={label}
+          floatingLabelFixed={true}
+          errorText={touched && error}
+          type={type}
+          {...input}
+          fullWidth={true}
+        />
       </div>
     );
   }
@@ -37,35 +46,37 @@ class EventsNew extends Component {
 
   render() {
     const { handleSubmit, pristine, submitting, invalid } = this.props;
+    const styles = {
+      margin: 12,
+    };
+
     return (
       <React.Fragment>
         <form onSubmit={handleSubmit(this.onSubmit)}>
           <div>
-            <div>
-              <Field
-                label="Title"
-                name="title"
-                type="text"
-                component={this.renderField}
-              />
-            </div>
-            <div>
-              <Field
-                label="Body"
-                name="body"
-                type="text"
-                component={this.renderField}
-              />
-            </div>
-            <div>
-              <input
-                type="submit"
-                value="Submit"
-                disabled={pristine || submitting || invalid}
-              />
-              <Link to="/">Cancel</Link>
-            </div>
+            <Field
+              label="Title"
+              name="title"
+              type="text"
+              component={this.renderField}
+            />
           </div>
+          <div>
+            <Field
+              label="Body"
+              name="body"
+              type="text"
+              component={this.renderField}
+            />
+          </div>
+          <RaisedButton
+            label="Submit"
+            type="submit"
+            primary={true}
+            disabled={pristine || submitting || invalid}
+            style={styles}
+          />
+          <RaisedButton label="Cancel" primary={false} href="/" />
         </form>
       </React.Fragment>
     );
